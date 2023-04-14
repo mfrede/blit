@@ -26,7 +26,7 @@ for /f "tokens=1-3 delims=: " %%a in ('time /t') do (
     set minutes=%%b
     set seconds=%%c
 )
-set outfile=%hostname%_%year%.%month%.%day%_%hour%.%minutes%.%seconds%.txt
+set outfile=%hostname%_%year%.%month%.%day%_%hours%.%minutes%.%seconds%.txt
 
 REM ====================================
 REM File header - set hostname
