@@ -1,5 +1,14 @@
 @echo off
 
+REM ===================================================================================================
+REM Written by MJ Frederickson
+REM Designed to produce a text file with critical system information.  Does NOT rely on external tools.
+REM Can be a jumping off point for finding additional information - or at least knowing what direction
+REM to go.
+REM ===================================================================================================
+
+
+
 REM ====================================
 REM Set variables
 REM ====================================
