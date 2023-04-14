@@ -1,18 +1,17 @@
-BLIT
+BLIT - Baseline Information Tracking
 
-Baseline Information Tracking
+This batch file is designed to be run from a USB stick, inside a Windows command shell with elevated privilidges.
 
-This batch file (yeah, I said batch file) MUST be (ok, doesn't have to be but some of the information won't be captured) run as an administrator.
+It is designed to run without the need for external applications (like the SysInternals Programs) and can be used to:
 
-Simple enough.
-
+- Establish a baseline ofr system operations
+- Collect forensic information
+- Collect data as part of an information security audit
 
 To Use:
-Open command prompt as administrator
-Run prorgam
+1.  Open command prompt as administrator
+2.  Run prorgam
+3.  Examine text file - the text file will contain the name of the host system.
 
-Will create text file with all the information.
-
-I use this for forensics investigations and as part of my information security risk assessments.
 
 Enjoy!
