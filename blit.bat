@@ -7,13 +7,26 @@ REM Can be a jumping off point for finding additional information - or at least 
 REM to go.
 REM ===================================================================================================
 
-
-
 REM ====================================
 REM Set variables
 REM ====================================
 set hostname=%computername%
-set outfile=%hostname%.txt
+
+REM - Get date info for file name
+set thisdate=%date%
+for /f "tokens=2-4 delims=/ " %%d in ('date /t') do (
+    set day=%%d
+    set month=%%e
+    set year=%%f
+)
+
+REM Get time info for file name
+for /f "tokens=1-3 delims=: " %%a in ('time /t') do (
+    set hours=%%a
+    set minutes=%%b
+    set seconds=%%c
+)
+set outfile=%hostname%_%year%.%month%.%day%_%hour%.%minutes%.%seconds%.txt
 
 REM ====================================
 REM File header - set hostname
