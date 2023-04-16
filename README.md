@@ -13,5 +13,9 @@ To Use:
 2.  Run prorgam
 3.  Examine text file - the text file will contain the name of the host system.
 
+Output:
+
+Two files - one with most system information, seperate one for the WMIC task (startups) file since it doesn't play well included in the first output file.
+
 
 Enjoy!
