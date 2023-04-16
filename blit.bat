@@ -27,6 +27,7 @@ for /f "tokens=1-3 delims=: " %%a in ('time /t') do (
     set seconds=%%c
 )
 set outfile=%hostname%_%year%.%month%.%day%_%hours%.%minutes%.%seconds%.txt
+set woutfile=wmic.%hostname%_%year%.%month%.%day%_%hours%.%minutes%.%seconds%.txt
 
 REM ====================================
 REM File header - set hostname
@@ -202,7 +203,7 @@ REM ====================================
 echo =============================================================================================================================== >> %outfile%
 echo === WMIC Startup Tasks: %hostname% ===  >> %outfile%
 echo =============================================================================================================================== >> %outfile%
-wmic startup list full >> %outfile%
+wmic startup list full > %woutfile%
 echo =============================================================================================================================== >> %outfile%
 echo/ >> %outfile%
 
