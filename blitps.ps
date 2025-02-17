@@ -1,0 +1,148 @@
+# Check if running as Admin
+$adminCheck = [System.Security.Principal.WindowsPrincipal]::new(
+    [System.Security.Principal.WindowsIdentity]::GetCurrent()
+).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $adminCheck) {
+    Write-Host "Warning: Script is NOT running as Administrator. Some commands may fail." -ForegroundColor Yellow
+} else {
+    Write-Host "Script is running with Administrator privileges." -ForegroundColor Green
+}
+
+# Set Variables
+$hostname = $env:COMPUTERNAME
+$thisdate = Get-Date -Format "yyyy-MM-dd"
+$thisTime = Get-Date -Format "HH-mm-ss"
+$outfile = "$hostname`_$thisdate`_$thisTime.txt"
+$woutfile = "wmic.$outfile"
+
+# Collect System Information
+@"
+===============================================================================================================================
+=== SYSTEM AUDIT REPORT: $hostname ===
+===============================================================================================================================
+"@ | Out-File -FilePath $outfile -Encoding utf8
+
+# Hostname and OS Version
+$hostname | Out-File -Append -FilePath $outfile
+(systeminfo) | Out-File -Append -FilePath $outfile
+
+# User and Group Information
+@"
+===============================================================================================================================
+=== USER AND GROUP INFORMATION ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-LocalUser | Select-Object Name, Enabled, LastLogon | Out-File -Append -FilePath $outfile
+Get-LocalGroupMember -Group "Administrators" | Out-File -Append -FilePath $outfile
+Get-LocalUser | Where-Object {$_.Enabled -eq $false} | Out-File -Append -FilePath $outfile
+
+# Password Policy & Account Lockout Policy
+net accounts | Out-File -Append -FilePath $outfile
+
+# Running Services
+@"
+===============================================================================================================================
+=== RUNNING SERVICES ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-Service | Where-Object { $_.StartType -eq "Automatic" } | Out-File -Append -FilePath $outfile
+
+# Installed Software
+@"
+===============================================================================================================================
+=== INSTALLED SOFTWARE ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-WmiObject -Class Win32_Product | Select-Object Name, Version | Out-File -Append -FilePath $outfile
+
+# High Resource Usage Processes
+@"
+===============================================================================================================================
+=== HIGH RESOURCE USAGE PROCESSES ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, Id, CPU, WS | Out-File -Append -FilePath $outfile
+
+# Open Network Ports
+@"
+===============================================================================================================================
+=== NETWORK PORTS AND CONNECTIONS ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+netstat -ano | Out-File -Append -FilePath $outfile
+
+# Publicly Exposed Network Ports
+@"
+===============================================================================================================================
+=== PUBLICLY EXPOSED NETWORK PORTS ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Test-NetConnection -ComputerName (hostname) -Port 21,22,23,25,53,80,135,139,443,445,3389 | Out-File -Append -FilePath $outfile
+
+# Firewall Rules
+@"
+===============================================================================================================================
+=== WINDOWS FIREWALL RULES ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-NetFirewallRule | Select-Object DisplayName, Enabled, Direction, Action | Out-File -Append -FilePath $outfile
+
+# Windows Updates & Patches
+@"
+===============================================================================================================================
+=== WINDOWS UPDATE HISTORY ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-HotFix | Sort-Object InstalledOn | Out-File -Append -FilePath $outfile
+
+# Disk Usage
+@"
+===============================================================================================================================
+=== DISK USAGE ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-PSDrive -PSProvider FileSystem | Out-File -Append -FilePath $outfile
+
+# Security Logs
+@"
+===============================================================================================================================
+=== SECURITY EVENT LOGS (Recent 50) ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-WinEvent -LogName Security -MaxEvents 50 | Out-File -Append -FilePath $outfile
+
+# Recently Created User Accounts
+@"
+===============================================================================================================================
+=== RECENTLY CREATED USER ACCOUNTS ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-WmiObject Win32_UserAccount | Where-Object { $_.SID -match "S-1-5-21" } | Sort-Object -Property CreationDate | Select-Object -Last 5 | Out-File -Append -FilePath $outfile
+
+# Unauthorized File Shares
+@"
+===============================================================================================================================
+=== UNAUTHORIZED FILE SHARES ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-SmbShare | Where-Object { $_.Name -notlike 'ADMIN$' -and $_.Name -notlike 'C$' -and $_.Name -notlike 'IPC$' } | Out-File -Append -FilePath $outfile
+
+# Installed Browser Extensions
+@"
+===============================================================================================================================
+=== INSTALLED BROWSER EXTENSIONS ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-ChildItem -Path "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Extensions" -Directory | Select-Object Name | Out-File -Append -FilePath $outfile
+Get-ChildItem -Path "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Extensions" -Directory | Select-Object Name | Out-File -Append -FilePath $outfile
+
+# Recently Accessed Files
+@"
+===============================================================================================================================
+=== RECENTLY ACCESSED FILES ===
+===============================================================================================================================
+"@ | Out-File -Append -FilePath $outfile
+Get-ChildItem -Path "$env:USERPROFILE\Recent" -Force | Select-Object Name, LastWriteTime | Out-File -Append -FilePath $outfile
+
+Write-Host "Script execution complete. Output file: $outfile"
