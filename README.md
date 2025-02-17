@@ -17,5 +17,7 @@ Output:
 
 Two files - one with most system information, seperate one for the WMIC task (startups) file since it doesn't play well included in the first output file.
 
+Powershell Notes:  You may need to temprarily allow the script to run:
+powershell -ExecutionPolicy Bypass -File .\your_script.ps1
 
 Enjoy!
